@@ -1,5 +1,6 @@
 import cookie from 'cookie'
-import * as token from '../auth/token'
+import { deleteCookie } from 'server/utils/cookie'
+import { AUTH_TOKEN, createAuthToken, processRefreshToken, REFRESH_TOKEN } from '../auth/token'
 
 export async function get(request: any) {
     const cookies = cookie.parse(request.headers.cookie)
@@ -8,15 +9,12 @@ export async function get(request: any) {
 
     let processedToken: any
     try {
-        processedToken = await token.processRefreshToken(refreshToken)
+        processedToken = await processRefreshToken(refreshToken)
     } catch (err) {
         return {
             status: 401,
             headers: {
-                'set-cookie': [
-                    'access_jwt=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT',
-                    'refresh_jwt=deleted; path=/auth/refresh; expires=Thu, 01 Jan 1970 00:00:00 GMT'
-                ]
+                'set-cookie': [deleteCookie(AUTH_TOKEN), deleteCookie(REFRESH_TOKEN)]
             },
             body: {
                 message: 'Invalid refresh token'
@@ -25,7 +23,7 @@ export async function get(request: any) {
     }
 
     if (processedToken.isValid) {
-        const newAccessToken = token.createAccessToken(
+        const newAccessToken = createAuthToken(
             processedToken.data.username,
             processedToken.data.userId
         )
@@ -44,10 +42,7 @@ export async function get(request: any) {
     return {
         status: 403,
         headers: {
-            'set-cookie': [
-                'access_jwt=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT',
-                'refresh_jwt=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
-            ]
+            'set-cookie': [deleteCookie(AUTH_TOKEN), deleteCookie(REFRESH_TOKEN)]
         },
         body: {
             message: 'Invalid refresh token'

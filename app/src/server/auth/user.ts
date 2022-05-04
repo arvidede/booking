@@ -1,12 +1,8 @@
 import bcrypt from 'bcrypt'
 import { v4 as uuid } from 'uuid'
 import passwordValidator from 'password-validator'
+import type { User } from 'server/db/models'
 
-interface User {
-    id: string
-    email: string
-    hashedPassword: string
-}
 const schema = new passwordValidator()
 
 schema
@@ -25,34 +21,25 @@ schema
     .spaces()
 
 // Temp until DB implemented
-const users: {
-    id: string
-    email: string
-    hashedPassword: string
-}[] = [
+const users: User[] = [
     {
         id: uuid(),
         email: 'user@mail.se',
-        hashedPassword: bcrypt.hashSync('password', parseInt(import.meta.env.VITE_SALT_ROUNDS))
+        password: bcrypt.hashSync('password', parseInt(import.meta.env.VITE_SALT_ROUNDS)),
+        name: 'Name'
     }
 ]
 
-export async function getUser(id: string): Promise<User | null> {
+export async function getUserById(id: string): Promise<User | null> {
     // Replace with DB logic
     const user = users.find((u) => u.id == id)
-
-    if (!user) return null
-
-    return { id: user.id, email: user.email, hashedPassword: user.hashedPassword }
+    return user || null
 }
 
 export async function getUserByEmail(email: string): Promise<User | null> {
     // Replace with DB logic
     const user = users.find((u) => u.email == email)
-
-    if (!user) return null
-
-    return { ...user, hashedPassword: user.hashedPassword }
+    return user || null
 }
 
 export async function checkUsernameExists(email: string): Promise<boolean> {
@@ -92,8 +79,9 @@ export async function createNewUser(
     // Replace with DB logic
     users.push({
         email,
-        hashedPassword,
-        id: userId
+        password: hashedPassword,
+        id: userId,
+        name: email
     })
 
     return { email, id: userId }
@@ -102,13 +90,13 @@ export async function createNewUser(
 export async function verifyPassword(email: string, password: string): Promise<User | null> {
     // Replace with DB logic
 
-    const user = getUserByEmail(email)
+    const user = await getUserByEmail(email)
 
     if (user) {
-        const passwordsMatch = await bcrypt.compare(password, user.hashedPassword)
+        const passwordsMatch = await bcrypt.compare(password, user.password)
 
         if (passwordsMatch) {
-            return { email, id: user.id, hashedPassword: user.hashedPassword }
+            return user
         }
     }
 

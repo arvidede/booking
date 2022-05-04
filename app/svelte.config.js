@@ -3,6 +3,17 @@ import preprocess from 'svelte-preprocess'
 
 import path from 'path'
 
+/** @type {import('vite').Plugin} */
+const plugin = {
+    name: 'custom-middleware',
+    configureServer(server) {
+        server.middlewares.use((req, res, next) => {
+            // console.log(`Got request ${req.url}`)
+            next()
+        })
+    }
+}
+
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
     // Consult https://github.com/sveltejs/svelte-preprocess
@@ -12,10 +23,10 @@ const config = {
             prependData: "@import './src/styles/main';"
         }
     }),
-
     kit: {
         adapter: adapter(),
         vite: {
+            plugins: [plugin],
             resolve: {
                 alias: {
                     utils: path.resolve('./src/utils'),

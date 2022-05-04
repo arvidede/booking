@@ -1,4 +1,6 @@
 <script>
+    import { goto } from '$app/navigation'
+
     import Button from 'components/Button.svelte'
 
     const ROUTES = [
@@ -18,14 +20,13 @@
         {/each}
     </nav>
     <div class="actions">
-        <Button>Logga in</Button>
+        <Button on:click={() => goto('/login')}>Logga in</Button>
         <Button>Kom igång</Button>
     </div>
 </header>
 
 <style lang="scss">
     header {
-        font-size: large;
         display: flex;
         align-items: center;
         justify-content: space-between;

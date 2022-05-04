@@ -1,9 +1,10 @@
 <script lang="ts">
-    export let onClick: undefined | (() => void) = undefined
+    import { createEventDispatcher } from 'svelte'
     export const type: 'button' | 'submit' | 'menu' | 'reset' = 'button'
+    const dispatch = createEventDispatcher()
 </script>
 
-<button on:click|preventDefault={onClick} type="button"><slot /></button>
+<button on:click|preventDefault={() => dispatch('click')} type="button"><slot /></button>
 
 <style lang="scss">
     button {

@@ -11,9 +11,11 @@
             email,
             password
         })
+
         errors = response.errors || []
+
         if (response.user) {
-            $session.user = response.user
+            session.set({ user: response.user })
             goto('/')
         }
     }

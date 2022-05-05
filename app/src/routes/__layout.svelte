@@ -1,3 +1,6 @@
+<script context="module">
+</script>
+
 <script>
     import Footer from 'components/layout/Footer.svelte'
     import Header from 'components/layout/Header.svelte'

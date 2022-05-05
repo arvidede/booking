@@ -1,6 +1,11 @@
 import type { RequestHandler } from '@sveltejs/kit'
-import { createCookie } from 'server/utils/cookie'
-import { AUTH_TOKEN, createAuthToken, createRefreshToken, REFRESH_TOKEN } from 'server/auth/token'
+import {
+    createAuthCookie,
+    createRefreshCookie,
+    deleteAuthCookie,
+    deleteRefreshCookie
+} from 'server/utils/cookie'
+import { createAuthToken, createRefreshToken } from 'server/auth/token'
 import { verifyPassword } from 'server/auth/user'
 
 export const post: RequestHandler = async (event) => {
@@ -13,8 +18,8 @@ export const post: RequestHandler = async (event) => {
             status: 201,
             headers: {
                 'set-cookie': [
-                    createCookie(AUTH_TOKEN, createAuthToken(email, user.id)),
-                    createCookie(REFRESH_TOKEN, createRefreshToken(user.id, user.email))
+                    createAuthCookie(createAuthToken(email, user.id)),
+                    createRefreshCookie(createRefreshToken(user.id, user.email))
                 ]
             },
             body: {
@@ -30,10 +35,7 @@ export const post: RequestHandler = async (event) => {
     return {
         status: 401,
         headers: {
-            'set-cookie': [
-                'access_jwt=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT',
-                'refresh_jwt=deleted; path=/auth/refresh; expires=Thu, 01 Jan 1970 00:00:00 GMT'
-            ]
+            'set-cookie': [deleteAuthCookie(), deleteRefreshCookie()]
         },
         body: {
             message: 'Login failed'

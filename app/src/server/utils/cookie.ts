@@ -1,9 +1,42 @@
 import cookie from 'cookie'
+import {
+    AUTH_TOKEN_COOKIE,
+    AUTH_TOKEN_EXPIRATION,
+    REFRESH_TOKEN_COOKIE,
+    REFRESH_TOKEN_EXPIRATION
+} from 'server/auth/constants'
+import { timeFromNow } from 'utils/date'
 
-export const createCookie = (name, value, expires = new Date('2023-01-01')) => {
-    return cookie.serialize(name, value, { httpOnly: true, expires })
+export const createCookie = (name: string, value: string, expires) => {
+    return cookie.serialize(name, value, { httpOnly: true, expires, path: '/' })
 }
 
-export const deleteCookie = (name) => {
+export const deleteCookie = (name: string) => {
     return cookie.serialize(name, '', { httpOnly: true, expires: new Date('01-01-1970') })
+}
+
+export const createAuthCookie = (token: string) => {
+    return createCookie(AUTH_TOKEN_COOKIE, token, timeFromNow(AUTH_TOKEN_EXPIRATION))
+}
+
+export const createRefreshCookie = (token: string) => {
+    return createCookie(REFRESH_TOKEN_COOKIE, token, timeFromNow(REFRESH_TOKEN_EXPIRATION))
+}
+
+export const deleteAuthCookie = () => {
+    return deleteCookie(AUTH_TOKEN_COOKIE)
+}
+
+export const deleteRefreshCookie = () => {
+    return deleteCookie(REFRESH_TOKEN_COOKIE)
+}
+
+export const getRefreshCookie = (cookies: string | undefined): string | null => {
+    if (!cookies) return null
+    return cookie.parse(cookies)[REFRESH_TOKEN_COOKIE] || null
+}
+
+export const getAuthCookie = (cookies: string | undefined): string | null => {
+    if (!cookies) return null
+    return cookie.parse(cookies)[AUTH_TOKEN_COOKIE] || null
 }

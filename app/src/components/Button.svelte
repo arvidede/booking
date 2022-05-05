@@ -14,5 +14,14 @@
         border: none;
         background-color: $primary-main;
         color: $secondary-main;
+        cursor: pointer;
+        transition: transform $transition-default;
+        &:active {
+            transform: scale(0.95);
+        }
+
+        &:disabled {
+            cursor: default;
+        }
     }
 </style>

@@ -1,8 +1,10 @@
-import cookie from 'cookie'
+import { parseAuthToken } from 'server/auth/token'
+import { getAuthCookie } from 'server/utils/cookie'
 
 export async function handle({ event, resolve }) {
-    const cookies = cookie.parse(event.request.headers.get('cookie') || '')
-    const jwt = cookies.jwt && Buffer.from(cookies.jwt, 'base64').toString('utf-8')
-    event.locals.user = jwt ? JSON.parse(jwt) : null
+    const token = getAuthCookie(event.request.headers.get('cookie'))
+    if (token) {
+        event.locals.user = parseAuthToken(token)
+    }
     return await resolve(event)
 }

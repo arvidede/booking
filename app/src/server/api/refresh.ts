@@ -1,11 +1,13 @@
-import cookie from 'cookie'
-import { deleteCookie } from 'server/utils/cookie'
-import { AUTH_TOKEN, createAuthToken, processRefreshToken, REFRESH_TOKEN } from '../auth/token'
+import {
+    createAuthCookie,
+    deleteAuthCookie,
+    deleteRefreshCookie,
+    getRefreshCookie
+} from 'server/utils/cookie'
+import { createAuthToken, processRefreshToken } from '../auth/token'
 
 export async function get(request: any) {
-    const cookies = cookie.parse(request.headers.cookie)
-
-    const refreshToken = cookies.refresh_jwt
+    const refreshToken = getRefreshCookie(request.headers.cookie)
 
     let processedToken: any
     try {
@@ -14,7 +16,7 @@ export async function get(request: any) {
         return {
             status: 401,
             headers: {
-                'set-cookie': [deleteCookie(AUTH_TOKEN), deleteCookie(REFRESH_TOKEN)]
+                'set-cookie': [deleteAuthCookie(), deleteRefreshCookie()]
             },
             body: {
                 message: 'Invalid refresh token'
@@ -23,7 +25,7 @@ export async function get(request: any) {
     }
 
     if (processedToken.isValid) {
-        const newAccessToken = createAuthToken(
+        const newAuthToken = createAuthToken(
             processedToken.data.username,
             processedToken.data.userId
         )
@@ -31,10 +33,10 @@ export async function get(request: any) {
         return {
             status: 202,
             headers: {
-                'set-cookie': `access_jwt=${newAccessToken}; Path=/; HttpOnly`
+                'set-cookie': createAuthCookie(newAuthToken)
             },
             body: {
-                message: 'New access token created'
+                message: 'New auth token created'
             }
         }
     }
@@ -42,7 +44,7 @@ export async function get(request: any) {
     return {
         status: 403,
         headers: {
-            'set-cookie': [deleteCookie(AUTH_TOKEN), deleteCookie(REFRESH_TOKEN)]
+            'set-cookie': [deleteAuthCookie(), deleteRefreshCookie()]
         },
         body: {
             message: 'Invalid refresh token'

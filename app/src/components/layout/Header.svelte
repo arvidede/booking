@@ -1,27 +1,43 @@
 <script>
     import { goto } from '$app/navigation'
-
+    import { session } from '$app/stores'
     import Button from 'components/Button.svelte'
+    import { onDestroy } from 'svelte'
+
+    let user = $session.user
+
+    // Shorthand subscription doesn't always work
+    const unsubscribe = session.subscribe((session) => {
+        user = session.user
+    })
+
+    onDestroy(unsubscribe)
 
     const ROUTES = [
-        { path: '/', title: 'Logo' },
-        { path: '/features', title: 'Lösningar' },
-        { path: '/pricing', title: 'Priser' },
-        { path: '/contact', title: 'Kontakt' },
-        { path: '/support', title: 'Support' },
-        { path: '/about', title: 'Om' }
+        { path: '/', title: 'Logo', protected: false },
+        { path: '/features', title: 'Lösningar', protected: false },
+        { path: '/pricing', title: 'Priser', protected: false },
+        { path: '/contact', title: 'Kontakt', protected: false },
+        { path: '/support', title: 'Support', protected: false },
+        { path: '/about', title: 'Om', protected: true }
     ]
 </script>
 
 <header>
     <nav>
         {#each ROUTES as route}
-            <a sveltekit:prefetch href={route.path}>{route.title}</a>
+            {#if !route.protected || (route.protected && user)}
+                <a sveltekit:prefetch href={route.path}>{route.title}</a>
+            {/if}
         {/each}
     </nav>
     <div class="actions">
-        <Button on:click={() => goto('/login')}>Logga in</Button>
-        <Button>Kom igång</Button>
+        {#if user}
+            <Button on:click={() => goto('/user')}>Mina sidor</Button>
+        {:else}
+            <Button on:click={() => goto('/login')}>Logga in</Button>
+            <Button>Kom igång</Button>
+        {/if}
     </div>
 </header>
 
@@ -35,7 +51,6 @@
         color: $secondary-main;
         background-color: $color_white;
         box-shadow: $shadow_float-default;
-
         nav,
         .actions {
             display: flex;

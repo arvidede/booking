@@ -3,16 +3,16 @@ import preprocess from 'svelte-preprocess'
 
 import path from 'path'
 
-/** @type {import('vite').Plugin} */
-const plugin = {
-    name: 'custom-middleware',
-    configureServer(server) {
-        server.middlewares.use((req, res, next) => {
-            // console.log(`Got request ${req.url}`)
-            next()
-        })
-    }
-}
+// /** @type {import('vite').Plugin} */
+// const plugin = {
+//     name: 'custom-middleware',
+//     configureServer(server) {
+//         server.middlewares.use((req, res, next) => {
+//             // console.log(`Got request ${req.url}`)
+//             next()
+//         })
+//     }
+// }
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -26,7 +26,7 @@ const config = {
     kit: {
         adapter: adapter(),
         vite: {
-            plugins: [plugin],
+            // plugins: [plugin],
             resolve: {
                 alias: {
                     utils: path.resolve('./src/utils'),

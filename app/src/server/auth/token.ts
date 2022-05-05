@@ -1,22 +1,25 @@
 import jwt from 'jsonwebtoken'
 import { v4 as uuid } from 'uuid'
+import {
+    AUTH_TOKEN_EXPIRATION,
+    JWT_AUTH_SECRET,
+    JWT_REFRESH_SECRET,
+    REFRESH_TOKEN_EXPIRATION
+} from './constants'
 
-export interface RefreshtJwt {
+export interface JWT {
     type: string
     email: string
     userId: string
     refreshToken: string
+    iat: number
+    exp: number
 }
 
 interface RefreshToken {
     userId: string
     token: string
 }
-
-const JWT_AUTH_SECRET = import.meta.env.VITE_AUTH_SECRET.toString()
-const JWT_REFRESH_SECRET = import.meta.env.VITE_REFRESH_SECRET.toString()
-export const AUTH_TOKEN = 'auth_token'
-export const REFRESH_TOKEN = 'refresh_token'
 
 let refreshTokens: RefreshToken[] = []
 
@@ -35,13 +38,13 @@ const deleteRefreshToken = (token) => {
 export function createAuthToken(username: string, userId: string) {
     return jwt.sign(
         {
-            type: 'access',
+            type: 'auth',
             userId,
             username,
             refreshToken: uuid()
         },
         JWT_AUTH_SECRET,
-        { expiresIn: '5m' }
+        { expiresIn: AUTH_TOKEN_EXPIRATION / 1000 }
     )
 }
 
@@ -57,8 +60,8 @@ export function createRefreshToken(userId: string, email: string) {
             refreshToken,
             email
         },
-        JWT_AUTH_SECRET,
-        { expiresIn: '15d' }
+        JWT_REFRESH_SECRET,
+        { expiresIn: REFRESH_TOKEN_EXPIRATION / 1000 }
     )
 
     return refreshJwt
@@ -67,10 +70,7 @@ export function createRefreshToken(userId: string, email: string) {
 export async function processRefreshToken(
     refreshJwt: string
 ): Promise<{ isValid: boolean; token: string; user: { userId: string; email: string } }> {
-    const { userId, refreshToken, email } = jwt.verify(
-        refreshJwt,
-        JWT_REFRESH_SECRET
-    ) as RefreshtJwt
+    const { userId, refreshToken, email } = jwt.verify(refreshJwt, JWT_REFRESH_SECRET) as JWT
 
     // Replace with DB Logic
 
@@ -86,8 +86,32 @@ export async function processRefreshToken(
     }
 }
 
+export function parseAuthToken(token) {
+    try {
+        return jwt.verify(token, JWT_AUTH_SECRET) as JWT
+    } catch {
+        return null
+    }
+}
+
+function verifyToken(token: string, secret: string): boolean {
+    try {
+        return Boolean(jwt.verify(token, secret))
+    } catch {
+        return false
+    }
+}
+
+export function verifyAuthToken(token: string) {
+    return verifyToken(token, JWT_AUTH_SECRET)
+}
+
+export function verifyRefreshToken(token: string) {
+    return verifyToken(token, JWT_REFRESH_SECRET)
+}
+
 export async function removeRefreshToken(refreshJwt: string) {
-    const { refreshToken } = jwt.verify(refreshJwt, JWT_REFRESH_SECRET) as RefreshtJwt
+    const { refreshToken } = jwt.verify(refreshJwt, JWT_REFRESH_SECRET) as JWT
 
     return deleteRefreshToken(refreshToken)
 }

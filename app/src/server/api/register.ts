@@ -1,32 +1,37 @@
-import * as userControls from '$lib/users'
-import * as tokenControls from './_tokens'
+import type { RequestHandler } from '@sveltejs/kit'
+import { createAuthCookie, createRefreshCookie } from 'server/auth/cookie'
+import { createNewUser } from 'server/auth/user'
+import { HTTP } from 'server/utils/constants'
 
-export async function post({ body }) {
-    const { username, password } = body
+interface UserBody {
+    email: string
+    name: string
+    phone: string
+    password: string
+}
+
+export const post: RequestHandler = async ({ request }) => {
+    const { email, name, password, phone }: UserBody = await request.json()
 
     try {
-        var newUser = await userControls.createNewUser(username, password)
+        const user = await createNewUser(email, name, password, phone)
+
+        return {
+            status: HTTP.CREATED,
+            headers: {
+                'set-cookie': [createAuthCookie(user), createRefreshCookie(user)]
+            },
+            body: {
+                message: `Successfully created user: ${user.name}`,
+                user: { ...user }
+            }
+        }
     } catch (err) {
         return {
-            status: 500,
-            body: err
-        }
-    }
-
-    const accessToken = tokenControls.generateAccessToken(username, newUser.id)
-    const refreshToken = tokenControls.generateRefreshToken(newUser.id, newUser.username)
-
-    return {
-        status: 201,
-        headers: {
-            'set-cookie': [
-                `access_jwt=${accessToken}; Path=/; HttpOnly`,
-                `refresh_jwt=${refreshToken}; Path=/auth/refresh; HttpOnly`
-            ]
-        },
-        body: {
-            message: `Successfully created user: ${username}`,
-            user: newUser
+            status: HTTP.BAD_REQUEST,
+            body: {
+                errors: err.issues
+            }
         }
     }
 }

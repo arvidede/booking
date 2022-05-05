@@ -1,39 +1,16 @@
-import * as cookie from 'cookie'
+import type { RequestHandler } from '@sveltejs/kit'
+import { deleteAuthCookie, deleteRefreshCookie, getRefreshCookie } from 'server/auth/cookie'
+import { removeRefreshToken } from 'server/auth/token'
 
-import * as tokenControls from './_tokens'
-
-export async function post(request) {
-    const refreshJwt = request.body.refreshJwt
-
-    try {
-        const processedToken = await tokenControls.processRefreshToken(refreshJwt)
-    } catch (err) {
-        return {
-            status: 401,
-            headers: {
-                'set-cookie': [
-                    'access_jwt=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT',
-                    'refresh_jwt=deleted; path=/auth/refresh; expires=Thu, 01 Jan 1970 00:00:00 GMT'
-                ]
-            },
-            body: {
-                message: 'Invalid refresh token'
-            }
-        }
-    }
-
-    await tokenControls.removeRefreshToken(refreshJwt)
+export const post: RequestHandler = async (event) => {
+    const refreshToken = getRefreshCookie(event.request.headers.get('cookie'))
+    await removeRefreshToken(refreshToken)
 
     return {
         status: 200,
         headers: {
-            'set-cookie': [
-                'access_jwt=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT',
-                'refresh_jwt=deleted; path=/auth/refresh; expires=Thu, 01 Jan 1970 00:00:00 GMT'
-            ]
+            'set-cookie': [deleteAuthCookie(), deleteRefreshCookie()]
         },
-        body: {
-            message: 'Logged out'
-        }
+        body: { ok: true }
     }
 }

@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken'
+import type { User } from 'types'
 import { v4 as uuid } from 'uuid'
 import {
     AUTH_TOKEN_EXPIRATION,
@@ -35,12 +36,12 @@ const deleteRefreshToken = (token) => {
     return true
 }
 
-export function createAuthToken(username: string, userId: string) {
+export function createAuthToken(user: User) {
     return jwt.sign(
         {
             type: 'auth',
-            userId,
-            username,
+            userId: user.id,
+            email: user.email,
             refreshToken: uuid()
         },
         JWT_AUTH_SECRET,
@@ -48,17 +49,17 @@ export function createAuthToken(username: string, userId: string) {
     )
 }
 
-export function createRefreshToken(userId: string, email: string) {
+export function createRefreshToken(user: User) {
     const refreshToken = uuid()
 
-    saveRefreshToken({ token: refreshToken, userId })
+    saveRefreshToken({ token: refreshToken, userId: user.id })
 
     const refreshJwt = jwt.sign(
         {
             type: 'refresh',
-            userId,
+            userId: user.id,
             refreshToken,
-            email
+            email: user.email
         },
         JWT_REFRESH_SECRET,
         { expiresIn: REFRESH_TOKEN_EXPIRATION / 1000 }
@@ -110,8 +111,12 @@ export function verifyRefreshToken(token: string) {
     return verifyToken(token, JWT_REFRESH_SECRET)
 }
 
-export async function removeRefreshToken(refreshJwt: string) {
-    const { refreshToken } = jwt.verify(refreshJwt, JWT_REFRESH_SECRET) as JWT
-
-    return deleteRefreshToken(refreshToken)
+export async function removeRefreshToken(token: string) {
+    try {
+        const { refreshToken } = jwt.verify(token, JWT_REFRESH_SECRET) as JWT
+        await deleteRefreshToken(refreshToken)
+        return true
+    } catch {
+        return false
+    }
 }

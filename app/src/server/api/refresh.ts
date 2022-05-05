@@ -3,8 +3,8 @@ import {
     deleteAuthCookie,
     deleteRefreshCookie,
     getRefreshCookie
-} from 'server/utils/cookie'
-import { createAuthToken, processRefreshToken } from '../auth/token'
+} from 'server/auth/cookie'
+import { processRefreshToken } from '../auth/token'
 
 export async function get(request: any) {
     const refreshToken = getRefreshCookie(request.headers.cookie)
@@ -25,15 +25,12 @@ export async function get(request: any) {
     }
 
     if (processedToken.isValid) {
-        const newAuthToken = createAuthToken(
-            processedToken.data.username,
-            processedToken.data.userId
-        )
+        const { username: email, userId: id } = processedToken.data
 
         return {
             status: 202,
             headers: {
-                'set-cookie': createAuthCookie(newAuthToken)
+                'set-cookie': createAuthCookie({ id, email })
             },
             body: {
                 message: 'New auth token created'

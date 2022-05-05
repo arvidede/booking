@@ -1,10 +1,17 @@
 <script lang="ts">
     import { createEventDispatcher } from 'svelte'
-    export const type: 'button' | 'submit' | 'menu' | 'reset' = 'button'
+    export let type: 'button' | 'submit' | 'menu' | 'reset' = 'button'
+    export let loading: boolean = false
     const dispatch = createEventDispatcher()
 </script>
 
-<button on:click|preventDefault={() => dispatch('click')} type="button"><slot /></button>
+<button on:click={() => dispatch('click')} {type}>
+    {#if loading}
+        Loading
+    {:else}
+        <slot />
+    {/if}
+</button>
 
 <style lang="scss">
     button {

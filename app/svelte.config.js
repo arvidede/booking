@@ -1,4 +1,4 @@
-import adapter from '@sveltejs/adapter-auto'
+import adapter from '@sveltejs/adapter-node'
 import preprocess from 'svelte-preprocess'
 
 import path from 'path'
@@ -23,15 +23,20 @@ const config = {
             prependData: "@import './src/styles/main';"
         }
     }),
+
     kit: {
         adapter: adapter(),
         vite: {
             // plugins: [plugin],
+            ssr: {
+                external: ['reflect-metadata']
+            },
             resolve: {
                 alias: {
                     utils: path.resolve('./src/utils'),
                     components: path.resolve('./src/components'),
                     server: path.resolve('./src/server'),
+                    assets: path.resolve('./src/assets'),
                     types: path.resolve('./src/types'),
                     styles: path.resolve('./src/styles'),
                     stores: path.resolve('./src/stores')

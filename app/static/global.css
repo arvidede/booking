@@ -17,6 +17,7 @@ body {
   color: #000;
   background-color: #faf9f6;
   min-height: 100vh;
+  height: 100%;
 }
 
 @media print {

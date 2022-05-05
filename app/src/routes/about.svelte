@@ -1,11 +1,5 @@
 <script context="module">
-    import { protect } from 'utils/auth'
-
-    export async function load({ session }) {
-        const redirect = protect(session)
-        if (redirect) return redirect
-        return {}
-    }
+    export { load } from 'utils/auth'
 </script>
 
 <h1>OM</h1>

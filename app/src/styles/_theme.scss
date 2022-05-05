@@ -36,7 +36,7 @@ $border-radius_default: 12px;
 $border-radius_s: 6px;
 $border-radius_xs: 4px;
 $border-radius_xxs: 2px;
-$border-light: solid 1px $todo-color;
+$border-light: solid 1px $color_light-gray;
 $border-regular: solid 1px $todo-color;
 $border-dark: solid 1px $todo-color;
 $border-no-border: solid 1px transparent;
@@ -124,6 +124,16 @@ $font-weight-bold: 700;
 
 %text-s {
   font-size: var(--font-size-text-s);
+  font-weight: $font-weight-semi-bold;
+}
+
+%text-xs {
+  font-size: var(--font-size-text-xs);
+  font-weight: $font-weight-semi-bold;
+}
+
+%text-xxs {
+  font-size: var(--font-size-text-xxs);
   font-weight: $font-weight-semi-bold;
 }
 

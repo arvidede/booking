@@ -7,3 +7,7 @@ export const protect = (session: App.Session) => {
     }
     return false
 }
+
+export async function load({ session }) {
+    return protect(session) || {}
+}

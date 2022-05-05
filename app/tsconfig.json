@@ -21,6 +21,7 @@
             "components/*": ["./src/components/*"],
             "server/*": ["src/server/*"],
             "types": ["./src/types"],
+            "assets/*": ["./src/assets/*"],
             "types/*": ["./src/types/*"],
             "styles/*": ["./src/styles/*"],
             "stores/*": ["./src/stores/*"]

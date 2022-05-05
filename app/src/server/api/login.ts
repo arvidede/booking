@@ -4,8 +4,7 @@ import {
     createRefreshCookie,
     deleteAuthCookie,
     deleteRefreshCookie
-} from 'server/utils/cookie'
-import { createAuthToken, createRefreshToken } from 'server/auth/token'
+} from 'server/auth/cookie'
 import { verifyPassword } from 'server/auth/user'
 
 export const post: RequestHandler = async (event) => {
@@ -17,10 +16,7 @@ export const post: RequestHandler = async (event) => {
         return {
             status: 201,
             headers: {
-                'set-cookie': [
-                    createAuthCookie(createAuthToken(email, user.id)),
-                    createRefreshCookie(createRefreshToken(user.id, user.email))
-                ]
+                'set-cookie': [createAuthCookie(user), createRefreshCookie(user)]
             },
             body: {
                 message: `Successfully logged in`,

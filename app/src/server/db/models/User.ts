@@ -2,21 +2,25 @@ import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm'
 
 @Entity()
 export class User {
-    @PrimaryGeneratedColumn()
+    @PrimaryGeneratedColumn('uuid')
     id: string
 
-    @Column()
+    @Column('text')
     name: string
 
-    @Column()
+    @Column('text')
     email: string
 
-    @Column()
+    @Column('text')
     password: string
 
-    constructor({ name, email, password }: Omit<User, 'id'>) {
+    @Column('text')
+    phone: string
+
+    constructor({ name, email, password, phone }: Omit<User, 'id'>) {
         this.name = name
         this.email = email
         this.password = password
+        this.phone = phone
     }
 }

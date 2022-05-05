@@ -1,24 +1,11 @@
 import bcrypt from 'bcrypt'
 import { v4 as uuid } from 'uuid'
 import passwordValidator from 'password-validator'
-import type { User } from 'server/db/models'
+import { User } from 'server/db/models'
 
 const schema = new passwordValidator()
 
-schema
-    .is()
-    .min(8)
-    .is()
-    .max(100)
-    .has()
-    .uppercase()
-    .has()
-    .lowercase()
-    .has()
-    .digits(1)
-    .has()
-    .not()
-    .spaces()
+schema.is().min(8).has().uppercase().has().lowercase().has().digits(1).has().not().spaces()
 
 // Temp until DB implemented
 const users: User[] = [
@@ -26,7 +13,8 @@ const users: User[] = [
         id: uuid(),
         email: 'user@mail.se',
         password: bcrypt.hashSync('password', parseInt(import.meta.env.VITE_SALT_ROUNDS)),
-        name: 'Name'
+        name: 'Name',
+        phone: '073-5320103'
     }
 ]
 
@@ -47,10 +35,7 @@ export async function checkUsernameExists(email: string): Promise<boolean> {
     return users.some((u) => u.email === email)
 }
 
-export async function createNewUser(
-    email: string,
-    password: string
-): Promise<{ email: string; id: string }> {
+export async function createNewUser(email: string, name: string, password: string, phone: string): Promise<User> {
     const passwordValidation = schema.validate(password, { details: true }) as any[]
 
     if (passwordValidation.length) {
@@ -58,7 +43,7 @@ export async function createNewUser(
 
         throw {
             message: 'Password does not meet requirements',
-            issues: issues
+            issues: { password: issues }
         }
     }
 
@@ -68,23 +53,18 @@ export async function createNewUser(
     if (usernameNotUnique) {
         throw {
             message: 'An account already exists for this email',
-            issues: ['Email already in use']
+            issues: { email: 'Email already in use' }
         }
     }
 
     const hashedPassword = bcrypt.hashSync(password, parseInt(import.meta.env.VITE_SALT_ROUNDS))
 
-    const userId = uuid()
+    const user = new User({ email, name, password: hashedPassword, phone })
 
-    // Replace with DB logic
-    users.push({
-        email,
-        password: hashedPassword,
-        id: userId,
-        name: email
-    })
+    // TODO: await db.users.save(user)
+    users.push(user)
 
-    return { email, id: userId }
+    return user
 }
 
 export async function verifyPassword(email: string, password: string): Promise<User | null> {

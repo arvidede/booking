@@ -36,7 +36,7 @@
             <Button on:click={() => goto('/user')}>Mina sidor</Button>
         {:else}
             <Button on:click={() => goto('/login')}>Logga in</Button>
-            <Button>Kom igång</Button>
+            <Button on:click={() => goto('/register')}>Kom igång</Button>
         {/if}
     </div>
 </header>

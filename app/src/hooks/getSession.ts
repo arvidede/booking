@@ -1,5 +1,7 @@
-export function getSession({ locals }) {
+import type { GetSession } from '@sveltejs/kit'
+
+export const getSession: GetSession = ({ locals }) => {
     return {
-        user: locals.user
+        user: locals.user || null
     }
 }

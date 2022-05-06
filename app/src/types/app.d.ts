@@ -1,12 +1,12 @@
 /// <reference types="@sveltejs/kit" />
 
-// See https://kit.svelte.dev/docs/types#app
-// for information about these interfaces
+type Session_ = import('./index').Session
 declare namespace App {
-    // interface Locals {}
-    // interface Platform {}
-    interface Session {
-        user: any
+    interface Locals {
+        user?: import('./index').User
     }
+    // eslint-disable-next-line @typescript-eslint/no-empty-interface
+    interface Session extends Session_ {}
+    // interface Platform {}
     // interface Stuff {}
 }

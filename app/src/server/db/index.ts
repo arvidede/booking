@@ -14,20 +14,22 @@ class DB {
             type: 'postgres',
             host: process.env.DB_HOST || 'localhost',
             port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 5432,
-            username: 'root',
-            password: 'admin',
-            database: 'test',
+            username: 'arvid',
+            password: '',
+            database: 'arvid',
             entities: [User],
             synchronize: true,
             logging: false
         })
+        this.source = db
+        this.users = db.getRepository(User)
 
-        db.initialize()
+        await this.source
+            .initialize()
             .then(() => {
-                this.source = db
-                this.users = db.getRepository(User)
+                console.log('DB initialized')
             })
-            .catch((error) => console.error(error))
+            .catch((error) => console.error('DB:', error))
     }
 }
 

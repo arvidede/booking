@@ -1,11 +1,6 @@
 import type { RequestHandler } from '@sveltejs/kit'
-import {
-    createAuthCookie,
-    createRefreshCookie,
-    deleteAuthCookie,
-    deleteRefreshCookie
-} from 'server/auth/cookie'
-import { verifyPassword } from 'server/auth/user'
+import { createAuthCookie, createRefreshCookie, deleteAuthCookie, deleteRefreshCookie } from 'server/auth/cookie'
+import { verifyPassword } from 'server/db/user'
 
 export const post: RequestHandler = async (event) => {
     const { email, password } = await event.request.json()

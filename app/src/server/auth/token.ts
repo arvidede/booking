@@ -1,12 +1,7 @@
 import jwt from 'jsonwebtoken'
 import type { User } from 'types'
 import { v4 as uuid } from 'uuid'
-import {
-    AUTH_TOKEN_EXPIRATION,
-    JWT_AUTH_SECRET,
-    JWT_REFRESH_SECRET,
-    REFRESH_TOKEN_EXPIRATION
-} from './constants'
+import { AUTH_TOKEN_EXPIRATION, JWT_AUTH_SECRET, JWT_REFRESH_SECRET, REFRESH_TOKEN_EXPIRATION } from './constants'
 
 export interface JWT {
     type: string

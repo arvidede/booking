@@ -29,38 +29,22 @@ export async function get<R>(path: string, config?: RequestInit): Promise<R> {
     return await http<R>(path, init)
 }
 
-export async function post<R>(
-    path: string,
-    body?: Record<string, any>,
-    config?: RequestInit
-): Promise<R> {
+export async function post<R>(path: string, body?: Record<string, any>, config?: RequestInit): Promise<R> {
     const init = { method: 'POST', body: body ? JSON.stringify(body) : undefined, ...config }
     return await http<R>(path, init)
 }
 
-export async function put<R>(
-    path: string,
-    body: Record<string, any>,
-    config?: RequestInit
-): Promise<R> {
+export async function put<R>(path: string, body: Record<string, any>, config?: RequestInit): Promise<R> {
     const init = { method: 'PUT', body: JSON.stringify(body), ...config }
     return await http<R>(path, init)
 }
 
-export async function patch<R>(
-    path: string,
-    body: Record<string, any>,
-    config?: RequestInit
-): Promise<R> {
+export async function patch<R>(path: string, body: Record<string, any>, config?: RequestInit): Promise<R> {
     const init = { method: 'PATCH', body: JSON.stringify(body), ...config }
     return await http<R>(path, init)
 }
 
-export async function del<R>(
-    path: string,
-    body: Record<string, any>,
-    config?: RequestInit
-): Promise<R> {
-    const init = { method: 'DELETE', body: JSON.stringify(body), ...config }
+export async function del<R>(path: string, body?: Record<string, any>, config?: RequestInit): Promise<R> {
+    const init = { method: 'DELETE', body: body ? JSON.stringify(body) : undefined, ...config }
     return await http<R>(path, init)
 }

@@ -17,10 +17,12 @@ export class User {
     @Column('text')
     phone: string
 
-    constructor({ name, email, password, phone }: Omit<User, 'id'>) {
-        this.name = name
-        this.email = email
-        this.password = password
-        this.phone = phone
+    constructor(props?: Omit<User, 'id'>) {
+        if (props) {
+            this.name = props.name
+            this.email = props.email
+            this.password = props.password
+            this.phone = props.phone
+        }
     }
 }

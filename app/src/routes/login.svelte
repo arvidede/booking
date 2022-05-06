@@ -19,7 +19,7 @@
     import type { User } from 'server/db/models'
     import { post } from 'utils/api'
     let email = 'user@mail.se'
-    let password = 'password'
+    let password = 'Password1'
     let errors: string[] = []
     let loading = false
 
@@ -50,12 +50,6 @@
     </Card>
 </div>
 
-{#if errors.length}
-    {#each errors as err}
-        <p>{err}</p>
-    {/each}
-{/if}
-
 <style lang="scss">
     .container {
         display: flex;
@@ -64,11 +58,6 @@
         background-size: cover;
         height: 100%;
         background-image: url('../assets/img/restaurant.jpg');
-
-        h1 {
-            margin: 0 0 $spacing-m;
-        }
-
         form {
             row-gap: $spacing-m;
             width: min(425px, 90vw);

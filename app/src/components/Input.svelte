@@ -8,13 +8,16 @@
     export let id: HTMLInputElement['id'] = undefined
     export let label: HTMLInputElement['id'] = undefined
     export let required: HTMLInputElement['required'] = false
-    export let error: boolean | string = undefined
-    const pattern = type === 'password' ? '(?=.*d)(?=.*[a-z])(?=.*[A-Z]).{8,}' : undefined
+    export let error: boolean | string | string[] = undefined
 
     const dispatch = createEventDispatcher()
 
     const handleChange = (e: InputEvent) => {
         dispatch('change', { name, value: e.currentTarget.value })
+    }
+
+    function errorIsArray(err: typeof error): err is string[] {
+        return typeof error === 'object'
     }
 </script>
 
@@ -23,11 +26,16 @@
         {#if label}
             <label for={id}>{label}</label>
         {/if}
-        {#if error}
+        {#if error && !errorIsArray(error)}
             <div class="error">{error}</div>
         {/if}
     </span>
-    <input on:change={handleChange} {value} {placeholder} {type} {name} {id} {required} {pattern} class:error />
+    <input on:change={handleChange} {value} {placeholder} {type} {name} {id} {required} class:error />
+    {#if error && errorIsArray(error)}
+        {#each error as e}
+            <div class="error">- {e}</div>
+        {/each}
+    {/if}
 </div>
 
 <style lang="scss">
@@ -43,10 +51,13 @@
         }
 
         .error {
-            @extend %text-xs;
-            color: $error;
             margin-left: auto;
         }
+    }
+
+    div.error {
+        @extend %text-xs;
+        color: $error;
     }
 
     input {

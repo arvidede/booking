@@ -1,38 +1,40 @@
 import bcrypt from 'bcrypt'
-import { v4 as uuid } from 'uuid'
 import passwordValidator from 'password-validator'
 import { User } from 'server/db/models'
+import type { User as PublicUser } from 'types'
+import db from 'server/db'
 
 const schema = new passwordValidator()
 
 schema.is().min(8).has().uppercase().has().lowercase().has().digits(1).has().not().spaces()
 
-// Temp until DB implemented
-const users: User[] = [
-    {
-        id: uuid(),
-        email: 'user@mail.se',
-        password: bcrypt.hashSync('password', parseInt(import.meta.env.VITE_SALT_ROUNDS)),
-        name: 'Name',
-        phone: '073-5320103'
+export const sanitizeUser = (user: User): PublicUser => {
+    return {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        phone: user.phone
     }
-]
+}
+
+export async function deleteUser(id: string): Promise<boolean> {
+    return Boolean((await db.users.delete({ id })).affected)
+}
+
+export async function getAllUsers(): Promise<PublicUser[] | null> {
+    return db.users.find({ select: { id: true, name: true, phone: true, email: true } })
+}
 
 export async function getUserById(id: string): Promise<User | null> {
-    // Replace with DB logic
-    const user = users.find((u) => u.id == id)
-    return user || null
+    return db.users.findOneBy({ id })
 }
 
 export async function getUserByEmail(email: string): Promise<User | null> {
-    // Replace with DB logic
-    const user = users.find((u) => u.email == email)
-    return user || null
+    return db.users.findOneBy({ email })
 }
 
-export async function checkUsernameExists(email: string): Promise<boolean> {
-    // Replace with DB logic
-    return users.some((u) => u.email === email)
+export async function checkUserEmailExists(email: string): Promise<boolean> {
+    return Boolean(await getUserByEmail(email))
 }
 
 export async function createNewUser(email: string, name: string, password: string, phone: string): Promise<User> {
@@ -47,10 +49,9 @@ export async function createNewUser(email: string, name: string, password: strin
         }
     }
 
-    // Confirm Unique Username
-    const usernameNotUnique = await checkUsernameExists(email)
+    const emailNotUnique = await checkUserEmailExists(email)
 
-    if (usernameNotUnique) {
+    if (emailNotUnique) {
         throw {
             message: 'An account already exists for this email',
             issues: { email: 'Email already in use' }
@@ -61,15 +62,12 @@ export async function createNewUser(email: string, name: string, password: strin
 
     const user = new User({ email, name, password: hashedPassword, phone })
 
-    // TODO: await db.users.save(user)
-    users.push(user)
+    await db.users.insert(user)
 
     return user
 }
 
 export async function verifyPassword(email: string, password: string): Promise<User | null> {
-    // Replace with DB logic
-
     const user = await getUserByEmail(email)
 
     if (user) {

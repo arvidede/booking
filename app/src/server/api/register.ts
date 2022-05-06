@@ -1,6 +1,6 @@
 import type { RequestHandler } from '@sveltejs/kit'
 import { createAuthCookie, createRefreshCookie } from 'server/auth/cookie'
-import { createNewUser } from 'server/auth/user'
+import { createNewUser } from 'server/db/user'
 import { HTTP } from 'server/utils/constants'
 
 interface UserBody {

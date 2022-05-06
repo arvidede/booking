@@ -33,19 +33,19 @@
 <style lang="scss">
     span {
         display: flex;
-        justify-content: space-between;
+        margin-bottom: $spacing-s;
 
         label {
             @extend %text-xs;
             color: $text-main;
             text-transform: uppercase;
             display: inline-block;
-            margin-bottom: $spacing-s;
         }
 
         .error {
             @extend %text-xs;
             color: $error;
+            margin-left: auto;
         }
     }
 
@@ -56,8 +56,10 @@
         padding: $spacing-s-m;
         border-radius: $border-radius-xs;
         outline: none;
+        transition: $transition-default;
 
         &:focus {
+            box-shadow: $shadow-float-low;
             border-color: $primary-main;
         }
 

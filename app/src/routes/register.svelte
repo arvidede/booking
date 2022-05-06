@@ -87,10 +87,6 @@
         height: 100%;
         background-image: url('../assets/img/restaurant.jpg');
 
-        h1 {
-            margin: 0 0 $spacing-m;
-        }
-
         form {
             row-gap: $spacing-m;
             width: min(425px, 90vw);

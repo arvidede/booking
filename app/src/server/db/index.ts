@@ -1,10 +1,11 @@
 import 'reflect-metadata'
 import { DataSource, Repository } from 'typeorm'
-import { User } from './models/'
+import { User, Reservation } from './models/'
 
 class DB {
     source: DataSource
     users: Repository<User>
+    reservations: Repository<Reservation>
     constructor() {
         this.init()
     }
@@ -17,12 +18,13 @@ class DB {
             username: 'arvid',
             password: '',
             database: 'arvid',
-            entities: [User],
+            entities: [User, Reservation],
             synchronize: true,
             logging: false
         })
         this.source = db
         this.users = db.getRepository(User)
+        this.reservations = db.getRepository(Reservation)
 
         await this.source
             .initialize()

@@ -25,6 +25,18 @@ export async function getAllUsers(): Promise<PublicUser[] | null> {
     return db.users.find({ select: { id: true, name: true, phone: true, email: true } })
 }
 
+export async function queryUser(where: Partial<User>): Promise<PublicUser[]> {
+    return db.users.find({
+        select: {
+            name: true,
+            email: true,
+            id: true,
+            phone: true
+        },
+        where
+    })
+}
+
 export async function getUserById(id: string): Promise<User | null> {
     return db.users.findOneBy({ id })
 }

@@ -1,11 +1,8 @@
 <script lang="ts">
-    import type { User } from 'types'
-    import { del } from 'utils/api'
-    export let users: User[] = []
-    const handleDeleteUser = async (id: string) => {
-        const ok = await del(`/api/user/${id}`)
-        console.log(ok)
-    }
+    import type { PublicUser } from 'types'
+    import { deleteUser } from 'utils/user'
+    export let users: PublicUser[] = []
+    const handleDeleteUser = async (id: string) => deleteUser(id)
 </script>
 
 <table>

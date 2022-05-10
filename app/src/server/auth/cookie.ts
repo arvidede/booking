@@ -5,7 +5,7 @@ import {
     REFRESH_TOKEN_COOKIE,
     REFRESH_TOKEN_EXPIRATION
 } from 'server/auth/constants'
-import type { User } from 'types'
+import type { PublicUser } from 'types'
 import { timeFromNow } from 'utils/date'
 import { createAuthToken, createRefreshToken } from './token'
 
@@ -21,12 +21,12 @@ export const deleteCookie = (name: string) => {
     })
 }
 
-export const createAuthCookieFromUser = (user: User) => {
+export const createAuthCookieFromUser = (user: PublicUser) => {
     const token = createAuthToken(user)
     return createCookie(AUTH_TOKEN_COOKIE, token, timeFromNow(AUTH_TOKEN_EXPIRATION))
 }
 
-export const createRefreshCookieFromUser = (user: User) => {
+export const createRefreshCookieFromUser = (user: PublicUser) => {
     const token = createRefreshToken(user)
     return createCookie(REFRESH_TOKEN_COOKIE, token, timeFromNow(REFRESH_TOKEN_EXPIRATION))
 }

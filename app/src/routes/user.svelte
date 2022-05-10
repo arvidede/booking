@@ -7,7 +7,7 @@
     import Button from 'components/Button.svelte'
     import { post } from 'utils/api'
     import { goto } from '$app/navigation'
-
+    import { deleteUser } from 'utils/user'
     const { user } = $session
 
     const logOut = () => {
@@ -18,9 +18,17 @@
             }
         })
     }
+
+    const deleteAccount = async () => {
+        if (confirm('Är du säker?')) {
+            const ok = await deleteUser(user.id)
+            if (ok) logOut()
+        }
+    }
 </script>
 
 <Button on:click={logOut}>Logga ut</Button>
+<Button on:click={deleteAccount}>Avsluta konto</Button>
 <pre>
     {JSON.stringify(user, null, 2)}
 </pre>

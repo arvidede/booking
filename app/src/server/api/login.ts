@@ -5,8 +5,9 @@ import {
     deleteAuthCookie,
     deleteRefreshCookie
 } from 'server/auth/cookie'
-import { verifyPassword } from 'server/db/user'
+import { sanitizeUser, verifyPassword } from 'server/db/user'
 
+// @ts-expect-error User is JSON serializable
 export const post: RequestHandler = async (event) => {
     const { email, password } = await event.request.json()
 
@@ -20,10 +21,7 @@ export const post: RequestHandler = async (event) => {
             },
             body: {
                 message: `Successfully logged in`,
-                user: {
-                    email,
-                    id: user.id
-                }
+                user: sanitizeUser(user)
             }
         }
     }

@@ -1,14 +1,14 @@
 import bcrypt from 'bcrypt'
 import passwordValidator from 'password-validator'
 import { User } from 'server/db/models'
-import type { User as PublicUser } from 'types'
+import type { AuthToken, PublicUser as PublicUser } from 'types'
 import db from 'server/db'
 
 const schema = new passwordValidator()
 
 schema.is().min(8).has().uppercase().has().lowercase().has().digits(1).has().not().spaces()
 
-export const sanitizeUser = (user: User): PublicUser => {
+export const sanitizeUser = (user: User | AuthToken): PublicUser => {
     return {
         id: user.id,
         email: user.email,
@@ -67,7 +67,7 @@ export async function createNewUser(email: string, name: string, password: strin
     return user
 }
 
-export async function verifyPassword(email: string, password: string): Promise<User | null> {
+export async function verifyPassword(email: string, password: string) {
     const user = await getUserByEmail(email)
 
     if (user) {
@@ -78,5 +78,5 @@ export async function verifyPassword(email: string, password: string): Promise<U
         }
     }
 
-    return null
+    return false
 }

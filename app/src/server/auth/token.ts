@@ -1,24 +1,8 @@
 import jwt from 'jsonwebtoken'
 import { getUserById } from 'server/db/user'
-import type { User } from 'types'
+import type { AuthToken, RefreshToken, PublicUser } from 'types'
 import { v4 as uuid } from 'uuid'
 import { AUTH_TOKEN_EXPIRATION, JWT_AUTH_SECRET, JWT_REFRESH_SECRET, REFRESH_TOKEN_EXPIRATION } from './constants'
-
-export interface JWT {
-    type: 'auth' | 'refresh'
-    iat: number
-    exp: number
-    token: string
-}
-
-interface AuthToken extends JWT {
-    id: string
-    email: string
-    phone: string
-}
-interface RefreshToken extends JWT {
-    id: string
-}
 
 let refreshTokens: RefreshToken[] = []
 
@@ -34,11 +18,12 @@ const deleteRefreshToken = (token) => {
     return true
 }
 
-export function createAuthToken(user: User) {
+export function createAuthToken(user: PublicUser) {
     return jwt.sign(
         {
             type: 'auth',
             id: user.id,
+            name: user.name,
             email: user.email,
             phone: user.phone
         },
@@ -47,7 +32,7 @@ export function createAuthToken(user: User) {
     )
 }
 
-export function createRefreshToken(user: User) {
+export function createRefreshToken(user: PublicUser) {
     const refreshToken = uuid()
 
     saveRefreshToken({ token: refreshToken, id: user.id })

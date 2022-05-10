@@ -1,6 +1,6 @@
 import type { RequestHandler } from '@sveltejs/kit'
 import { createAuthCookieFromUser, createRefreshCookieFromUser } from 'server/auth/cookie'
-import { createNewUser } from 'server/db/user'
+import { createNewUser, sanitizeUser } from 'server/db/user'
 import { HTTP } from 'server/utils/constants'
 
 interface UserBody {
@@ -10,6 +10,7 @@ interface UserBody {
     password: string
 }
 
+// @ts-expect-error User is JSON serializable
 export const post: RequestHandler = async ({ request }) => {
     const { email, name, password, phone }: UserBody = await request.json()
 
@@ -23,7 +24,7 @@ export const post: RequestHandler = async ({ request }) => {
             },
             body: {
                 message: `Successfully created user: ${user.name}`,
-                user: { ...user }
+                user: sanitizeUser(user)
             }
         }
     } catch (err) {

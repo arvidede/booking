@@ -25,7 +25,7 @@
         password: 'Password1',
         phone: '073-5320103'
     }
-    let errors: Record<string, string> = {}
+    let errors: Errors = {}
     let loading = false
 
     async function handleRegister() {

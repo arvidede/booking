@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm'
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm'
+import { Reservation } from './Reservation'
 
 @Entity()
 export class User {
@@ -16,6 +17,9 @@ export class User {
 
     @Column('text')
     phone: string
+
+    @OneToMany(() => Reservation, (reservation) => reservation.siteId)
+    reservations?: Reservation[]
 
     constructor(props?: Omit<User, 'id'>) {
         if (props) {

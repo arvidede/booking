@@ -9,10 +9,11 @@
     export let label: HTMLInputElement['id'] = undefined
     export let required: HTMLInputElement['required'] = false
     export let error: boolean | string | string[] = undefined
-
+    export let action
     const dispatch = createEventDispatcher()
 
     const handleChange = (e: InputEvent) => {
+        value = e.currentTarget.value
         dispatch('change', { name, value: e.currentTarget.value })
     }
 
@@ -30,7 +31,7 @@
             <div class="error">{error}</div>
         {/if}
     </span>
-    <input on:change={handleChange} {value} {placeholder} {type} {name} {id} {required} class:error />
+    <input use:action on:input={handleChange} {value} {placeholder} {type} {name} {id} {required} class:error />
     {#if error && errorIsArray(error)}
         {#each error as e}
             <div class="error">- {e}</div>

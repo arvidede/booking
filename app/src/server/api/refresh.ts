@@ -1,20 +1,35 @@
 import {
-    createAuthCookie,
+    createAuthCookieFromToken,
+    createRefreshCookieFromToken,
     deleteAuthCookie,
     deleteRefreshCookie,
     getRefreshCookie
 } from 'server/auth/cookie'
-import { processRefreshToken } from '../auth/token'
+import { HTTP } from 'server/utils/constants'
+import { refreshAuthToken } from '../auth/token'
 
 export async function get(request: any) {
-    const refreshToken = getRefreshCookie(request.headers.cookie)
-
-    let processedToken: any
     try {
-        processedToken = await processRefreshToken(refreshToken)
-    } catch (err) {
+        const refreshToken = getRefreshCookie(request.headers.cookie)
+        const token = await refreshAuthToken(refreshToken)
+
+        if (token) {
+            return {
+                status: 202,
+                headers: {
+                    'set-cookie': [
+                        createAuthCookieFromToken(token.authToken),
+                        createRefreshCookieFromToken(token.refreshToken)
+                    ]
+                },
+                body: {
+                    message: 'New auth token created'
+                }
+            }
+        }
+
         return {
-            status: 401,
+            status: HTTP.FORBIDDEN,
             headers: {
                 'set-cookie': [deleteAuthCookie(), deleteRefreshCookie()]
             },
@@ -22,29 +37,15 @@ export async function get(request: any) {
                 message: 'Invalid refresh token'
             }
         }
-    }
-
-    if (processedToken.isValid) {
-        const { username: email, userId: id } = processedToken.data
-
+    } catch (err) {
         return {
-            status: 202,
+            status: HTTP.FORBIDDEN,
             headers: {
-                'set-cookie': createAuthCookie({ id, email })
+                'set-cookie': [deleteAuthCookie(), deleteRefreshCookie()]
             },
             body: {
-                message: 'New auth token created'
+                message: 'Invalid refresh token'
             }
-        }
-    }
-
-    return {
-        status: 403,
-        headers: {
-            'set-cookie': [deleteAuthCookie(), deleteRefreshCookie()]
-        },
-        body: {
-            message: 'Invalid refresh token'
         }
     }
 }

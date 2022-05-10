@@ -1,20 +1,23 @@
 import jwt from 'jsonwebtoken'
+import { getUserById } from 'server/db/user'
 import type { User } from 'types'
 import { v4 as uuid } from 'uuid'
 import { AUTH_TOKEN_EXPIRATION, JWT_AUTH_SECRET, JWT_REFRESH_SECRET, REFRESH_TOKEN_EXPIRATION } from './constants'
 
 export interface JWT {
-    type: string
-    email: string
-    userId: string
-    refreshToken: string
+    type: 'auth' | 'refresh'
     iat: number
     exp: number
+    token: string
 }
 
-interface RefreshToken {
-    userId: string
-    token: string
+interface AuthToken extends JWT {
+    id: string
+    email: string
+    phone: string
+}
+interface RefreshToken extends JWT {
+    id: string
 }
 
 let refreshTokens: RefreshToken[] = []
@@ -35,9 +38,9 @@ export function createAuthToken(user: User) {
     return jwt.sign(
         {
             type: 'auth',
-            userId: user.id,
+            id: user.id,
             email: user.email,
-            refreshToken: uuid()
+            phone: user.phone
         },
         JWT_AUTH_SECRET,
         { expiresIn: AUTH_TOKEN_EXPIRATION / 1000 }
@@ -47,68 +50,65 @@ export function createAuthToken(user: User) {
 export function createRefreshToken(user: User) {
     const refreshToken = uuid()
 
-    saveRefreshToken({ token: refreshToken, userId: user.id })
+    saveRefreshToken({ token: refreshToken, id: user.id })
 
-    const refreshJwt = jwt.sign(
+    return jwt.sign(
         {
             type: 'refresh',
-            userId: user.id,
-            refreshToken,
-            email: user.email
+            id: user.id,
+            token: refreshToken
         },
         JWT_REFRESH_SECRET,
         { expiresIn: REFRESH_TOKEN_EXPIRATION / 1000 }
     )
-
-    return refreshJwt
 }
 
-export async function processRefreshToken(
-    refreshJwt: string
-): Promise<{ isValid: boolean; token: string; user: { userId: string; email: string } }> {
-    const { userId, refreshToken, email } = jwt.verify(refreshJwt, JWT_REFRESH_SECRET) as JWT
-
-    // Replace with DB Logic
-
-    const tokenExists = refreshTokens.some((t) => t.token == refreshToken && t.userId == userId)
-
-    return {
-        isValid: tokenExists,
-        token: refreshToken,
-        user: {
-            userId,
-            email
-        }
-    }
-}
-
-export function parseAuthToken(token) {
+export async function refreshAuthToken(refreshJwt: string) {
     try {
-        return jwt.verify(token, JWT_AUTH_SECRET) as JWT
+        const parsedRefreshToken = verifyRefreshToken(refreshJwt)
+        if (!parsedRefreshToken) return null
+
+        const user = await getUserById(parsedRefreshToken.id)
+        if (!user) return null
+
+        await deleteRefreshToken(parsedRefreshToken.token)
+
+        return {
+            authToken: createAuthToken(user),
+            refreshToken: createRefreshToken(user),
+            user
+        }
     } catch {
         return null
     }
 }
 
-function verifyToken(token: string, secret: string): boolean {
+export function parseJWT<T = AuthToken | RefreshToken>(token: string, secret: string): T | null {
     try {
-        return Boolean(jwt.verify(token, secret))
+        return jwt.verify(token, secret) as T
     } catch {
-        return false
+        return null
     }
 }
 
-export function verifyAuthToken(token: string) {
-    return verifyToken(token, JWT_AUTH_SECRET)
+export function parseAuthToken(token: string): AuthToken | null {
+    try {
+        return jwt.verify(token, JWT_AUTH_SECRET) as AuthToken
+    } catch {
+        return null
+    }
 }
 
 export function verifyRefreshToken(token: string) {
-    return verifyToken(token, JWT_REFRESH_SECRET)
+    const refreshToken = parseJWT<RefreshToken>(token, JWT_REFRESH_SECRET)
+    if (!refreshToken) return false
+    const tokenExists = refreshTokens.some((t) => t.token == refreshToken.token && t.id == refreshToken.id)
+    return tokenExists ? refreshToken : false
 }
 
 export async function removeRefreshToken(token: string) {
     try {
-        const { refreshToken } = jwt.verify(token, JWT_REFRESH_SECRET) as JWT
+        const { token: refreshToken } = jwt.verify(token, JWT_REFRESH_SECRET) as RefreshToken
         await deleteRefreshToken(refreshToken)
         return true
     } catch {

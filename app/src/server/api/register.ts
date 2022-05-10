@@ -1,5 +1,5 @@
 import type { RequestHandler } from '@sveltejs/kit'
-import { createAuthCookie, createRefreshCookie } from 'server/auth/cookie'
+import { createAuthCookieFromUser, createRefreshCookieFromUser } from 'server/auth/cookie'
 import { createNewUser } from 'server/db/user'
 import { HTTP } from 'server/utils/constants'
 
@@ -19,7 +19,7 @@ export const post: RequestHandler = async ({ request }) => {
         return {
             status: HTTP.CREATED,
             headers: {
-                'set-cookie': [createAuthCookie(user), createRefreshCookie(user)]
+                'set-cookie': [createAuthCookieFromUser(user), createRefreshCookieFromUser(user)]
             },
             body: {
                 message: `Successfully created user: ${user.name}`,

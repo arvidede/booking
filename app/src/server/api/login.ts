@@ -1,5 +1,10 @@
 import type { RequestHandler } from '@sveltejs/kit'
-import { createAuthCookie, createRefreshCookie, deleteAuthCookie, deleteRefreshCookie } from 'server/auth/cookie'
+import {
+    createAuthCookieFromUser,
+    createRefreshCookieFromUser,
+    deleteAuthCookie,
+    deleteRefreshCookie
+} from 'server/auth/cookie'
 import { verifyPassword } from 'server/db/user'
 
 export const post: RequestHandler = async (event) => {
@@ -11,7 +16,7 @@ export const post: RequestHandler = async (event) => {
         return {
             status: 201,
             headers: {
-                'set-cookie': [createAuthCookie(user), createRefreshCookie(user)]
+                'set-cookie': [createAuthCookieFromUser(user), createRefreshCookieFromUser(user)]
             },
             body: {
                 message: `Successfully logged in`,

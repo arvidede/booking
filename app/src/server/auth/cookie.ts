@@ -21,13 +21,21 @@ export const deleteCookie = (name: string) => {
     })
 }
 
-export const createAuthCookie = (user: User) => {
+export const createAuthCookieFromUser = (user: User) => {
     const token = createAuthToken(user)
     return createCookie(AUTH_TOKEN_COOKIE, token, timeFromNow(AUTH_TOKEN_EXPIRATION))
 }
 
-export const createRefreshCookie = (user: User) => {
+export const createRefreshCookieFromUser = (user: User) => {
     const token = createRefreshToken(user)
+    return createCookie(REFRESH_TOKEN_COOKIE, token, timeFromNow(REFRESH_TOKEN_EXPIRATION))
+}
+
+export const createAuthCookieFromToken = (token: string) => {
+    return createCookie(AUTH_TOKEN_COOKIE, token, timeFromNow(AUTH_TOKEN_EXPIRATION))
+}
+
+export const createRefreshCookieFromToken = (token: string) => {
     return createCookie(REFRESH_TOKEN_COOKIE, token, timeFromNow(REFRESH_TOKEN_EXPIRATION))
 }
 

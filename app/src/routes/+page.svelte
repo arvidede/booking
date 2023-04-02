@@ -12,11 +12,7 @@
 
 <Input bind:value={searchQuery} action={debounce({ next: handleInputChange, delay: 500 })} />
 
-{#await res}
-    Loading...
-{:then value}
-    <pre>{JSON.stringify({ searchQuery, value }, null, 2)}</pre>
-{/await}
+<pre>{JSON.stringify({ searchQuery }, null, 2)}</pre>
 
 <style lang="scss">
 </style>

@@ -1,13 +1,12 @@
-export const protect = (session: App.Session) => {
-    if (!session.user) {
-        return {
-            status: 302,
-            redirect: '/login'
-        }
+import { redirect } from '@sveltejs/kit'
+
+export const protect = (page: App.PageData) => {
+    if (!page || !page.user) {
+        throw redirect(302, '/login')
     }
-    return false
+    return page
 }
 
 export async function load({ session }) {
-    return protect(session) || {}
+    return protect(session)
 }

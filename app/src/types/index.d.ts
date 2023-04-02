@@ -10,10 +10,6 @@ export interface PublicUser {
     phone: string
 }
 
-export interface Session {
-    user: PublicUser | null
-}
-
 interface JWT {
     type: 'auth' | 'refresh'
     iat: number

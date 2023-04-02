@@ -12,12 +12,12 @@
 
 <script lang="ts">
     import { goto } from '$app/navigation'
-    import { session } from '$app/stores'
     import Button from 'components/Button.svelte'
     import Card from 'components/Card.svelte'
     import Input from 'components/Input.svelte'
     import type { User } from 'server/db/models'
     import { post } from 'utils/api'
+    import { page } from '$app/stores'
     type Errors = Record<string, string>
     let input = {
         name: 'restaurant',
@@ -27,6 +27,7 @@
     }
     let errors: Errors = {}
     let loading = false
+    let { user } = page
 
     async function handleRegister() {
         loading = true
@@ -34,7 +35,7 @@
         loading = false
 
         if (response.user) {
-            $session.user = response.user
+            user = response.user
             goto('/')
         } else if (response.errors) {
             errors = response.errors
@@ -85,7 +86,7 @@
         align-items: center;
         background-size: cover;
         height: 100%;
-        background-image: url('../assets/img/restaurant.jpg');
+        background-image: url('/src/assets/img/restaurant.jpg');
 
         form {
             row-gap: $spacing-m;

@@ -1,21 +1,15 @@
-<script context="module">
-    export { load } from 'utils/auth'
-</script>
-
 <script lang="ts">
-    import { session } from '$app/stores'
+    import { page } from '$app/stores'
     import Button from 'components/Button.svelte'
     import { post } from 'utils/api'
-    import { goto } from '$app/navigation'
     import { deleteUser } from 'utils/user'
-    const { user } = $session
+    const { user } = $page.data
+    let loading = false
 
     const logOut = () => {
-        post<{ ok: boolean }>('/api/logout').then((res) => {
-            if (res.ok) {
-                $session.user = null
-                goto('/')
-            }
+        loading = true
+        post('/api/logout').then((res) => {
+            loading = false
         })
     }
 
@@ -27,7 +21,7 @@
     }
 </script>
 
-<Button on:click={logOut}>Logga ut</Button>
+<Button {loading} on:click={logOut}>Logga ut</Button>
 <Button on:click={deleteAccount}>Avsluta konto</Button>
 <pre>
     {JSON.stringify(user, null, 2)}

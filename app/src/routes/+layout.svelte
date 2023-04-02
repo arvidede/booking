@@ -6,11 +6,7 @@
     import Header from 'components/layout/Header.svelte'
 </script>
 
-<svelte:head>
-    <style lang="scss">
-        @import '../styles/typography-global';
-    </style>
-</svelte:head>
+<svelte:head />
 
 <Header />
 <main>

@@ -2,6 +2,7 @@ import cookie from 'cookie'
 import {
     AUTH_TOKEN_COOKIE,
     AUTH_TOKEN_EXPIRATION,
+    COOKIE_DELIMITER,
     REFRESH_TOKEN_COOKIE,
     REFRESH_TOKEN_EXPIRATION
 } from 'server/auth/constants'
@@ -56,3 +57,5 @@ export const getAuthCookie = (cookies: string | undefined): string | null => {
     if (!cookies) return null
     return cookie.parse(cookies)[AUTH_TOKEN_COOKIE] || null
 }
+
+export const join = (cookies: string[]) => cookies.join(COOKIE_DELIMITER)

@@ -1,17 +1,10 @@
 <script>
     import { goto } from '$app/navigation'
-    import { session } from '$app/stores'
+    import { page } from '$app/stores'
     import Button from 'components/Button.svelte'
     import { onDestroy } from 'svelte'
 
-    let user = $session.user
-
-    // Shorthand subscription doesn't always work
-    const unsubscribe = session.subscribe((session) => {
-        user = session.user
-    })
-
-    onDestroy(unsubscribe)
+    let { user } = page
 
     const ROUTES = [
         { path: '/', title: 'Logo', protected: false },

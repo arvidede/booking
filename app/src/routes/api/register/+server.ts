@@ -11,7 +11,7 @@ interface UserBody {
 }
 
 // @ts-expect-error User is JSON serializable
-export const post: RequestHandler = async ({ request }) => {
+export const POST: RequestHandler = async ({ request }) => {
     const { email, name, password, phone }: UserBody = await request.json()
 
     try {

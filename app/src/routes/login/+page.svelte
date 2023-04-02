@@ -1,22 +1,8 @@
-<script lang="ts" context="module">
-    export async function load({ session }) {
-        if (session.user) {
-            return {
-                status: 302,
-                redirect: '/user'
-            }
-        }
-        return {}
-    }
-</script>
-
 <script lang="ts">
-    import { goto } from '$app/navigation'
-    import { session } from '$app/stores'
+    import { goto, invalidate } from '$app/navigation'
     import Button from 'components/Button.svelte'
     import Card from 'components/Card.svelte'
     import Input from 'components/Input.svelte'
-    import type { User } from 'server/db/models'
     import { post } from 'utils/api'
     let email = 'user@mail.se'
     let password = 'Password1'
@@ -25,18 +11,12 @@
 
     async function handleLogin() {
         loading = true
-        const response = await post<{ errors?: string[]; user: User }>('/api/login', {
+        const response = await post<undefined | { errors: string[] }>('/api/login', {
             email,
             password
         })
         loading = false
-
-        errors = response.errors || []
-
-        if (response.user) {
-            $session.user = response.user
-            goto('/')
-        }
+        errors = response?.errors || []
     }
 </script>
 
@@ -57,7 +37,7 @@
         align-items: center;
         background-size: cover;
         height: 100%;
-        background-image: url('../assets/img/restaurant.jpg');
+        background-image: url('/src/assets/img/restaurant.jpg');
         form {
             row-gap: $spacing-m;
             width: min(425px, 90vw);

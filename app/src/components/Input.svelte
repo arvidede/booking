@@ -1,5 +1,6 @@
 <script lang="ts">
     import { createEventDispatcher } from 'svelte'
+    import type { Action } from 'svelte/action'
     type InputEvent = KeyboardEvent & { currentTarget: HTMLInputElement }
     export let type: HTMLInputElement['type'] = 'text'
     export let placeholder: HTMLInputElement['placeholder'] = undefined
@@ -9,7 +10,8 @@
     export let label: HTMLInputElement['id'] = undefined
     export let required: HTMLInputElement['required'] = false
     export let error: boolean | string | string[] = undefined
-    export let action
+    export let action: Action<HTMLInputElement> = () => {}
+
     const dispatch = createEventDispatcher()
 
     const handleChange = (e: InputEvent) => {

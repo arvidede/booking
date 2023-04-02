@@ -1,3 +1,5 @@
+import { goto } from '$app/navigation'
+
 async function http<R>(input: RequestInfo, init: RequestInit, token?: string): Promise<R> {
     const options = { ...init, headers: { ...init?.headers } as Record<string, string> }
 
@@ -11,8 +13,13 @@ async function http<R>(input: RequestInfo, init: RequestInit, token?: string): P
 
     return fetch(input, options)
         .then(async (res) => {
+            if (res.redirected) {
+                const url = new URL(res.url)
+                goto(url.pathname)
+                return
+            }
             const body = await res.text()
-            return body || res.ok
+            return body
         })
         .then((maybeJson) => {
             try {
